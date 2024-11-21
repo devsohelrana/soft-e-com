@@ -1,15 +1,28 @@
 <?php
 
+use App\Http\Controllers\Backend\Admin\AdminController as AdminAdminController;
+use App\Http\Controllers\Backend\User\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Backend user
+Route::middleware(['auth', 'verified', 'role:user'])->prefix('user')->group(
+    function () {
+        Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+    }
+);
+
+
+// Backend admin
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(
+    function () {
+        Route::get('/dashboard', [AdminAdminController::class, 'index'])->name('admin.dashboard');
+    }
+);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -17,4 +30,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
